@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Unified Circular Progress Sample</string>
+    <string name="indeterminate_label">Indeterminate</string>
+    <string name="progress_label">Progress</string>
+</resources>
