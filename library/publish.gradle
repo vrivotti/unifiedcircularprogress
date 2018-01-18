@@ -4,6 +4,50 @@ apply plugin: 'com.jfrog.bintray'
 version=this.version
 group='io.github.verarivotti.unifiedcircularprogress'
 
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourcesJar
+}
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                groupId 'io.github.verarivotti.unifiedcircularprogress' // CREATE A GROUP ID FOR YOUR LIBRARY
+                artifactId 'unified-circular-progress' // THE NAME OF YOUR MODULE
+
+                name 'unified-circular-progress' // YOUR LIBRARY NAME
+                description 'Material circular progress bar with smooth transitions between determinate and indeterminate states.' // YOUR LIBRARY DESCRIPTION
+                url 'https://github.com/vrivotti/unified-circular-progress' // YOUR SITE
+
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'http://opensource.org/licenses/MIT'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'vrivotti' //YOUR ID
+                        name 'Vera Rivotti' //YOUR NAME
+                    }
+                }
+                scm {
+                    connection 'https://github.com/vrivotti/unified-circular-progress.git' // YOUR GIT REPO
+                    developerConnection 'https://github.com/vrivotti/unified-circular-progress.git' // YOUR GIT REPO
+                    url 'https://github.com/vrivotti/unified-circular-progress' // YOUR SITE
+
+                }
+            }
+        }
+    }
+}
+
 bintray {
     user = project.hasProperty('bintrayUser') ?: System.getenv('BINTRAY_USER')
     key = project.hasProperty('bintrayApiKey') ?: System.getenv('BINTRAY_API_KEY')
@@ -19,7 +63,6 @@ bintray {
         websiteUrl = 'https://github.com/vrivotti/unified-circular-progress'
         issueTrackerUrl = 'https://github.com/vrivotti/unified-circular-progress/issues'
         vcsUrl = 'https://github.com/vrivotti/unified-circular-progress.git'
-        dryRun = true
         version {
             name = this.version
             desc = "unified-circular-progress ${this.version}"
