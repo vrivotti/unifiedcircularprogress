@@ -1,0 +1,30 @@
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+version=this.version
+group='io.github.verarivotti.unifiedcircularprogress'
+
+bintray {
+    user = project.hasProperty('bintrayUser') ?: System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ?: System.getenv('BINTRAY_API_KEY')
+    configurations = ['archives']
+    pkg {
+        repo = 'unified-circular-progress'
+        name = 'unified-circular-progress'
+        userOrg = 'vrivotti'
+        description = "Material circular progress bar with smooth transitions between determinate and indeterminate states."
+        publish = true
+        publicDownloadNumbers = true
+        licenses = ['MIT']
+        websiteUrl = 'https://github.com/vrivotti/unified-circular-progress'
+        issueTrackerUrl = 'https://github.com/vrivotti/unified-circular-progress/issues'
+        vcsUrl = 'https://github.com/vrivotti/unified-circular-progress.git'
+        dryRun = true
+        version {
+            name = this.version
+            desc = "unified-circular-progress ${this.version}"
+            released = new Date()
+            vcsTag = this.version
+        }
+    }
+}
