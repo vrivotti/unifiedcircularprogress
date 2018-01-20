@@ -1,6 +1,6 @@
 # unified-circular-progress
 
-Circular progress bar with smooth transitions between determinate and indeterminate states. Looks like framework indeterminate circular ProgressBar, but with the ability to show determinate progress as well.
+Circular progress bar with smooth transitions between determinate and indeterminate states. Looks like framework indeterminate circular `ProgressBar`, but with the ability to show determinate progress as well.
 
 It works on Android 4.0+.
 
@@ -8,7 +8,7 @@ It works on Android 4.0+.
 
 Simply replace your `ProgressBar` with `UnifiedCircularProgressBar`.
 
-This is not an extension of framework ProgressBar. You cannot change drawables and there is no secondary progress or background.
+This is not an extension of framework `ProgressBar`. You cannot change drawables and there is no secondary progress or background.
 
 For example:
 
