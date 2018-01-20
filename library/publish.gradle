@@ -1,57 +1,41 @@
-apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-version=this.version
-group='io.github.verarivotti.unifiedcircularprogress'
+publishing {
+    publications {
+        Production(MavenPublication) {
+            artifact("$buildDir/outputs/aar/library-release.aar")
+            groupId 'io.github.verarivotti'
+            artifactId 'unifiedcircularprogress'
+            version '0.1'
 
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
 
-artifacts {
-    archives sourcesJar
-}
-
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                packaging 'aar'
-                groupId 'io.github.verarivotti.unifiedcircularprogress' // CREATE A GROUP ID FOR YOUR LIBRARY
-                artifactId 'unified-circular-progress' // THE NAME OF YOUR MODULE
-
-                name 'unified-circular-progress' // YOUR LIBRARY NAME
-                description 'Material circular progress bar with smooth transitions between determinate and indeterminate states.' // YOUR LIBRARY DESCRIPTION
-                url 'https://github.com/vrivotti/unified-circular-progress' // YOUR SITE
-
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'http://opensource.org/licenses/MIT'
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included in the pom.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
                     }
-                }
-                developers {
-                    developer {
-                        id 'vrivotti' //YOUR ID
-                        name 'Vera Rivotti' //YOUR NAME
-                    }
-                }
-                scm {
-                    connection 'https://github.com/vrivotti/unified-circular-progress.git' // YOUR GIT REPO
-                    developerConnection 'https://github.com/vrivotti/unified-circular-progress.git' // YOUR GIT REPO
-                    url 'https://github.com/vrivotti/unified-circular-progress' // YOUR SITE
-
                 }
             }
         }
     }
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
 bintray {
-    user = project.hasProperty('bintrayUser') ?: System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ?: System.getenv('BINTRAY_API_KEY')
+    user = properties.getProperty('bintrayUser')
+    key = properties.getProperty('bintrayApiKey')
+    publications = ['Production']
     configurations = ['archives']
+    override = true
     pkg {
         repo = 'unified-circular-progress'
         name = 'unified-circular-progress'
@@ -63,11 +47,12 @@ bintray {
         websiteUrl = 'https://github.com/vrivotti/unified-circular-progress'
         issueTrackerUrl = 'https://github.com/vrivotti/unified-circular-progress/issues'
         vcsUrl = 'https://github.com/vrivotti/unified-circular-progress.git'
+        dryRun = true
         version {
-            name = this.version
-            desc = "unified-circular-progress ${this.version}"
+            name = '0.1'
+            desc = "unified-circular-progress 0.1"
             released = new Date()
-            vcsTag = this.version
+            vcsTag = '0.1'
         }
     }
 }
