@@ -1,13 +1,15 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
+version '0.1.0'
+
 publishing {
     publications {
         Production(MavenPublication) {
             artifact("$buildDir/outputs/aar/library-release.aar")
             groupId 'io.github.verarivotti'
             artifactId 'unifiedcircularprogress'
-            version '0.1'
+            version this.version
 
             pom.withXml {
                 def dependenciesNode = asNode().appendNode('dependencies')
@@ -31,28 +33,28 @@ Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-    user = properties.getProperty('bintrayUser')
-    key = properties.getProperty('bintrayApiKey')
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
     publications = ['Production']
     configurations = ['archives']
     override = true
     pkg {
-        repo = 'unified-circular-progress'
+        repo = 'maven'
         name = 'unified-circular-progress'
         userOrg = 'vrivotti'
-        description = "Material circular progress bar with smooth transitions between determinate and indeterminate states."
+        desc = "Material circular progress bar with smooth transitions between determinate and indeterminate states."
+        labels = ['android', 'progress', 'progressbar', 'circular progress', 'determinate', 'indeterminate']
         publish = true
         publicDownloadNumbers = true
         licenses = ['MIT']
         websiteUrl = 'https://github.com/vrivotti/unified-circular-progress'
         issueTrackerUrl = 'https://github.com/vrivotti/unified-circular-progress/issues'
         vcsUrl = 'https://github.com/vrivotti/unified-circular-progress.git'
-        dryRun = true
         version {
-            name = '0.1'
-            desc = "unified-circular-progress 0.1"
+            name = this.version
+            desc = "unified-circular-progress ${this.version}"
             released = new Date()
-            vcsTag = '0.1'
+            vcsTag = this.version
         }
     }
 }
