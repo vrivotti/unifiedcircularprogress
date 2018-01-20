@@ -50,6 +50,8 @@ bintray {
         websiteUrl = 'https://github.com/vrivotti/unified-circular-progress'
         issueTrackerUrl = 'https://github.com/vrivotti/unified-circular-progress/issues'
         vcsUrl = 'https://github.com/vrivotti/unified-circular-progress.git'
+        githubRepo = 'vrivotti/unified-circular-progress'
+        publish = true
         version {
             name = this.version
             desc = "unified-circular-progress ${this.version}"
