@@ -400,7 +400,7 @@ public class UnifiedCircularProgressBar extends View {
     public synchronized void setProgress(int progress) {
         progress = constrain(progress, mMin, mMax);
 
-        if (progress == mProgress) {
+        if (progress == mProgress && !mIndeterminate) {
             // No change from current.
             return;
         }
