@@ -23,6 +23,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.ViewDebug;
 
+/**
+ * A drawable that shows and animates as a circular progress.
+ * This drawable supports two modes to represent progress: determinate, and indeterminate.
+ * Animation transitions between modes are smooth and continuous.
+ *
+ **/
 public final class UnifiedCircularProgressDrawable extends Drawable implements Animatable {
     private static final float ANGULAR_EPSILON = 1 / 3600f;
 
