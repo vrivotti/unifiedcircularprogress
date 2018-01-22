@@ -21,6 +21,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.ViewDebug;
 
 public final class UnifiedCircularProgressDrawable extends Drawable implements Animatable {
     private static final float ANGULAR_EPSILON = 1 / 3600f;
@@ -45,7 +46,7 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
 
     private boolean mIndeterminate = true;
     private float mProgress = 0;
-    private long mDuration = 1333;
+    private int mDuration = 1333;
 
     public UnifiedCircularProgressDrawable() {
         setupIndeterminateAnimators();
@@ -126,18 +127,42 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
         return PixelFormat.TRANSLUCENT;
     }
 
-    public long getDuration() {
+    /**
+     * <p>Gets the current duration of the indeterminate animation.</p>
+     *
+     * @return int the animation duration
+     */
+    public int getDuration() {
         return mDuration;
     }
 
+    /**
+     * <p>Change the duration of the indeterminate animation.
+     * This value is also used as a basis for all the animations.
+     * </p>
+     *
+     * @param duration animation duration
+     */
     public void setDuration(int duration) {
         this.mDuration = duration;
     }
 
-    public boolean getIndeterminate() {
+    /**
+     * <p>Indicate whether this progress drawable is in indeterminate mode.</p>
+     *
+     * @return true if the progress drawable is in indeterminate mode
+     */
+    public boolean isIndeterminate() {
         return mIndeterminate;
     }
 
+    /**
+     * <p>Change the indeterminate mode for this progress drawable. In indeterminate
+     * mode, the progress is ignored and the progress drawable shows an infinite
+     * animation instead.</p>
+     *
+     * @param indeterminate true to enable the indeterminate mode
+     */
     public void setIndeterminate(boolean indeterminate) {
         if(!indeterminate) setProgress(mProgress);
         else if (!mIndeterminate) {
@@ -151,6 +176,28 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
         }
     }
 
+    /**
+     * <p>Get the progress drawable's current amount of progress.</p>
+     *
+     * @return the current progress, between 0 and 1
+     *
+     * @see #setProgress(float)
+     */
+    public float getProgress() {
+        return mProgress;
+    }
+
+    /**
+     * Sets the current amount of progress to the specified value.
+     * <p>
+     * This method will animate the visual position to the target value.
+     *
+     * @param progress the new amount of progress, between 0 and 1
+     *
+     * @see #setIndeterminate(boolean)
+     * @see #isIndeterminate()
+     * @see #getProgress()
+     */
     public void setProgress(float progress) {
         mProgress = progress;
         mIndeterminate = false;
@@ -194,6 +241,12 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
         }
     }
 
+    /**
+     * Starts the drawable's animation.
+     *
+     * @see #stop()
+     * @see #isRunning()
+     */
     public void start() {
         if (isStarted()) {
             return;
@@ -205,11 +258,25 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
         invalidateSelf();
     }
 
+    /**
+     * Stops the drawable's animation.
+     *
+     * @see #stop()
+     * @see #isRunning()
+     */
     public void stop() {
         mRingPathStart.end();
         mRingPathEnd.end();
     }
 
+    /**
+     * Indicates whether the animation is running.
+     *
+     * @return true if the animation is running, false otherwise.
+     *
+     * @see #stop()
+     * @see #isRunning()
+     */
     public boolean isRunning() {
         return mRingPathStart.isRunning();
     }

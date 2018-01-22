@@ -29,6 +29,7 @@ import java.util.ArrayList;
  * <p>
  * A user interface element that indicates the progress of an operation.
  * Progress bar supports two modes to represent progress: determinate, and indeterminate.
+ * Transitions between modes are smooth and continuous.
  * </p>
  * <h3>Indeterminate Progress</h3>
  * <p>
@@ -41,6 +42,7 @@ import java.util.ArrayList;
  * <p>
  * Use determinate mode for the progress bar when you want to show that a specific quantity of
  * progress has occurred.
+ * Determinate mode shows an animation to specific amount of progress.
  * <p>
  * You can update the percentage of progress displayed by using the
  * {@link #setProgress(int)} method, or by calling
@@ -51,19 +53,9 @@ import java.util.ArrayList;
  * {@link R.styleable#UnifiedCircularProgressBar_android_max android:max} attribute.
  * </p>
  *
- * <p><strong>XML attributes</b></strong>
  * <p>
- * See {@link R.styleable#UnifiedCircularProgressBar ProgressBar Attributes}
+ * See {@link R.styleable#UnifiedCircularProgressBar Attributes}
  * </p>
- *
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_indeterminateDuration
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_min
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_max
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_maxHeight
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_maxWidth
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_minHeight
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_minWidth
- * @attr ref android.R.styleable#SmoothCircularProgressBar_android_progress
  */
 @RemoteView
 public class UnifiedCircularProgressBar extends View {
@@ -92,8 +84,9 @@ public class UnifiedCircularProgressBar extends View {
     private boolean mAggregatedIsVisible;
 
     private final ArrayList<RefreshData> mRefreshData = new ArrayList<RefreshData>();
+
     /**
-     * Create a new smooth circular progress bar with range 0...100 and initial progress of 0.
+     * Create a new progress bar with range 0...100, initial progress of 0 and in indeterminate mode.
      * @param context the application environment
      */
     public UnifiedCircularProgressBar(Context context) {
@@ -233,7 +226,6 @@ public class UnifiedCircularProgressBar extends View {
      *
      * @param tint the tint to apply, may be {@code null} to clear tint
      *
-     * @attr ref android.R.styleable#ProgressBar_indeterminateTint
      * @see #getIndeterminateTintList()
      * @see Drawable#setTintList(ColorStateList)
      */
@@ -247,7 +239,6 @@ public class UnifiedCircularProgressBar extends View {
     }
     /**
      * @return the tint applied to the indeterminate drawable
-     * @attr ref android.R.styleable#ProgressBar_indeterminateTint
      * @see #setIndeterminateTintList(ColorStateList)
      */
     @Nullable
@@ -261,7 +252,6 @@ public class UnifiedCircularProgressBar extends View {
      *
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
-     * @attr ref android.R.styleable#ProgressBar_indeterminateTintMode
      * @see #setIndeterminateTintList(ColorStateList)
      * @see Drawable#setTintMode(PorterDuff.Mode)
      */
@@ -279,7 +269,6 @@ public class UnifiedCircularProgressBar extends View {
      *
      * @return the blending mode used to apply the tint to the indeterminate
      *         drawable
-     * @attr ref android.R.styleable#ProgressBar_indeterminateTintMode
      * @see #setIndeterminateTintMode(PorterDuff.Mode)
      */
     @Nullable
@@ -682,7 +671,7 @@ public class UnifiedCircularProgressBar extends View {
     static class SavedState extends BaseSavedState {
         int progress;
         /**
-         * Constructor called from {@link ProgressBar#onSaveInstanceState()}
+         * Constructor called from {@link UnifiedCircularProgressBar#onSaveInstanceState()}
          */
         SavedState(Parcelable superState) {
             super(superState);
@@ -754,10 +743,10 @@ public class UnifiedCircularProgressBar extends View {
     }
 
     /**
-     * Returns whether the SmoothCircularProgressBar is animating or not. This is essentially the same
-     * as whether the SmoothCircularProgressBar is visible.
+     * Returns whether the progress bar is animating or not. This is essentially the same
+     * as whether the progress bar is visible.
      *
-     * @return true if the SmoothCircularProgressBar is animating, false otherwise.
+     * @return true if the progress bar is animating, false otherwise.
      */
     public boolean isAnimating() {
         return getWindowVisibility() == VISIBLE && isShown();
@@ -786,7 +775,6 @@ public class UnifiedCircularProgressBar extends View {
      * Parses a {@link android.graphics.PorterDuff.Mode} from a tintMode
      * attribute's enum value.
      *
-     * @hide
      */
     private static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {
         switch (value) {
