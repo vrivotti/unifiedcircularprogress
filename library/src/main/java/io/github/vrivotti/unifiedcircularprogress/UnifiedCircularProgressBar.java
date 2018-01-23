@@ -1,4 +1,4 @@
-package io.github.verarivotti.unifiedcircularprogress;
+package io.github.vrivotti.unifiedcircularprogress;
 
 import android.annotation.TargetApi;
 import android.content.Context;

@@ -1,8 +1,18 @@
-# unified-circular-progress
+# Unified Circular Progress
 
 Circular progress bar with smooth transitions between determinate and indeterminate states. Looks like framework indeterminate circular `ProgressBar`, but with the ability to show determinate progress as well.
 
 It works on Android 4.0+.
+
+## Adding to project
+
+```groovy
+dependencies {
+    compile 'io.github.vrivotti:unifiedcircularprogress:<latest-version>'
+}
+```
+
+You may check the latest version [here](https://bintray.com/vrivotti/maven/unifiedcircularprogress/_latestVersion)
 
 ## How to use
 
@@ -13,7 +23,7 @@ This is not an extension of framework `ProgressBar`. You cannot change drawables
 For example:
 
 ```xml
-<io.github.verarivotti.unifiedcircularprogress.UnifiedCircularProgressBar
+<io.github.vrivotti.unifiedcircularprogress.UnifiedCircularProgressBar
             android:id="@+id/progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

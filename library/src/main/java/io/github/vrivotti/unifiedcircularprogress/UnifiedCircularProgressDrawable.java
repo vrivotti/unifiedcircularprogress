@@ -1,4 +1,4 @@
-package io.github.verarivotti.unifiedcircularprogress;
+package io.github.vrivotti.unifiedcircularprogress;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

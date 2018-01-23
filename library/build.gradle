@@ -8,7 +8,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 26
         versionCode 1
-        versionName "0.1.1"
+        versionName "0.1.2"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -44,11 +44,11 @@ publish {
     bintrayKey = properties.getProperty("bintray.apikey")
     repoName = 'maven'
     userOrg = 'vrivotti'
-    groupId = 'io.github.verarivotti'
+    groupId = 'io.github.vrivotti'
     artifactId = 'unifiedcircularprogress'
-    desc = 'Material circular progress bar with smooth transitions between determinate and indeterminate states.'
-    publishVersion = '0.1.1'
+    desc = 'Circular progress bar with smooth transitions between determinate and indeterminate states.'
+    publishVersion = '0.1.2'
     licences = ['MIT']
-    website = 'https://github.com/vrivotti/unified-circular-progress'
+    website = 'https://github.com/vrivotti/unifiedcircularprogress'
     dryRun = false
 }
