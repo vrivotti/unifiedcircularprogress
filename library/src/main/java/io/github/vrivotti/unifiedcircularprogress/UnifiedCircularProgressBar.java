@@ -20,7 +20,6 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewDebug;
-import android.widget.ProgressBar;
 import android.widget.RemoteViews.RemoteView;
 
 import java.util.ArrayList;
@@ -131,8 +130,7 @@ public class UnifiedCircularProgressBar extends View {
         setProgress(a.getInt(R.styleable.UnifiedCircularProgressBar_android_progress, mProgress));
 		setIndeterminateDrawable(new UnifiedCircularProgressDrawable());
         mNoInvalidate = false;
-		setIndeterminate(a.getBoolean(
-				R.styleable.UnifiedCircularProgressBar_android_indeterminate, mIndeterminate));
+		setIndeterminate(a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_indeterminate, mIndeterminate));
         mMirrorForRtl = a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_mirrorForRtl, mMirrorForRtl);
 
         TypedValue typedValue = new TypedValue();
@@ -202,14 +200,13 @@ public class UnifiedCircularProgressBar extends View {
 
         startAnimation();
     }
-    @TargetApi(Build.VERSION_CODES.M)
     private void setIndeterminateDrawable(UnifiedCircularProgressDrawable d) {
         if (mIndeterminateDrawable != d) {
             mIndeterminateDrawable = d;
             if (d != null) {
                 d.setCallback(this);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                    d.setLayoutDirection(getLayoutDirection());
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                    d.setAutoMirrored(true);
                 }
                 if (d.isStateful()) {
                     d.setState(getDrawableState());
@@ -303,13 +300,6 @@ public class UnifiedCircularProgressBar extends View {
     public void jumpDrawablesToCurrentState() {
         super.jumpDrawablesToCurrentState();
         if (mIndeterminateDrawable != null) mIndeterminateDrawable.jumpToCurrentState();
-    }
-    @RequiresApi(Build.VERSION_CODES.M)
-    public void onResolveDrawables(int layoutDirection) {
-        final Drawable d = mIndeterminateDrawable;
-        if (d != null) {
-            d.setLayoutDirection(layoutDirection);
-        }
     }
     @Override
     public void postInvalidate() {

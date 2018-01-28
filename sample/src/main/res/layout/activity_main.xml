@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="40dp">
         <TextView
             android:id="@+id/indeterminate_label"
@@ -23,6 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"
             android:checked="true"
             app:showText="false" />
     </LinearLayout>
@@ -33,6 +35,7 @@
         android:orientation="horizontal"
         android:layout_marginTop="40dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginStart="20dp"
         android:layout_below="@id/switch_layout">
         <TextView
             android:id="@+id/progress_label"
@@ -46,6 +49,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
             android:max="100"/>
     </LinearLayout>
 
@@ -62,6 +66,7 @@
             android:layout_gravity="center"
             android:indeterminate="true"
             android:max="100"
+            android:mirrorForRtl="true"
             style="@style/Widget.AppCompat.ProgressBar"/>
     </FrameLayout>
 </RelativeLayout>
