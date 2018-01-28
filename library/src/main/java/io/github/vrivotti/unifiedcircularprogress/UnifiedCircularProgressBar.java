@@ -1,6 +1,5 @@
 package io.github.vrivotti.unifiedcircularprogress;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -51,7 +50,6 @@ import java.util.ArrayList;
  * You can adjust this default by setting the
  * {@link R.styleable#UnifiedCircularProgressBar_android_max android:max} attribute.
  * </p>
- *
  * <p>
  * See {@link R.styleable#UnifiedCircularProgressBar Attributes}
  * </p>
@@ -68,7 +66,7 @@ public class UnifiedCircularProgressBar extends View {
     private boolean mMinInitialized;
     private int mMax;
     private boolean mMaxInitialized;
-	private boolean mIndeterminate;
+    private boolean mIndeterminate;
     private UnifiedCircularProgressDrawable mIndeterminateDrawable;
     private ProgressTintInfo mProgressTintInfo;
 
@@ -79,7 +77,7 @@ public class UnifiedCircularProgressBar extends View {
     private boolean mAttached;
     private boolean mRefreshIsPosted;
 
-	boolean mMirrorForRtl = false;
+    boolean mMirrorForRtl = false;
     private boolean mAggregatedIsVisible;
 
     private final ArrayList<RefreshData> mRefreshData = new ArrayList<RefreshData>();
@@ -128,9 +126,9 @@ public class UnifiedCircularProgressBar extends View {
         setMin(a.getInt(R.styleable.UnifiedCircularProgressBar_android_min, mMin));
         setMax(a.getInt(R.styleable.UnifiedCircularProgressBar_android_max, mMax));
         setProgress(a.getInt(R.styleable.UnifiedCircularProgressBar_android_progress, mProgress));
-		setIndeterminateDrawable(new UnifiedCircularProgressDrawable());
+        setIndeterminateDrawable(new UnifiedCircularProgressDrawable());
         mNoInvalidate = false;
-		setIndeterminate(a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_indeterminate, mIndeterminate));
+        setIndeterminate(a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_indeterminate, mIndeterminate));
         mMirrorForRtl = a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_mirrorForRtl, mMirrorForRtl);
 
         TypedValue typedValue = new TypedValue();
@@ -155,7 +153,7 @@ public class UnifiedCircularProgressBar extends View {
         }
         a.recycle();
         applyIndeterminateTint();
-	}
+    }
     /**
      * <p>
      * Initialize the progress bar's default values:
@@ -171,7 +169,7 @@ public class UnifiedCircularProgressBar extends View {
         mMin = 0;
         mMax = 100;
         mProgress = 0;
-		mIndeterminate = false;
+        mIndeterminate = false;
         mMinWidth = 24;
         mMaxWidth = 48;
         mMinHeight = 24;
@@ -344,7 +342,7 @@ public class UnifiedCircularProgressBar extends View {
 
     private synchronized void doRefreshProgress(int progress) {
         int range = mMax - mMin;
-        final float scale = range > 0 ? (progress - mMin) / (float) range : 0;
+        final float scale = range > 0 ? (progress - mMin) / (float)range : 0;
         mIndeterminateDrawable.setProgress(scale);
     }
 
@@ -515,7 +513,7 @@ public class UnifiedCircularProgressBar extends View {
      */
     void stopAnimation() {
         mIndeterminateDrawable.stop();
-		mShouldStartAnimationDrawable = false;
+        mShouldStartAnimationDrawable = false;
         postInvalidate();
     }
     @Override
@@ -560,27 +558,27 @@ public class UnifiedCircularProgressBar extends View {
         int bottom = h;
         int top = 0;
         int left = 0;
-		if (mIndeterminateDrawable != null) {
+        if (mIndeterminateDrawable != null) {
             // Aspect ratio logic does not apply to AnimationDrawables
-                // Maintain aspect ratio. Certain kinds of animated drawables
-                // get very confused otherwise.
-                final int intrinsicWidth = mIndeterminateDrawable.getIntrinsicWidth();
-                final int intrinsicHeight = mIndeterminateDrawable.getIntrinsicHeight();
-                final float intrinsicAspect = (float) intrinsicWidth / intrinsicHeight;
-                final float boundAspect = (float) w / h;
-                if (intrinsicAspect != boundAspect) {
-                    if (boundAspect > intrinsicAspect) {
-                        // New width is larger. Make it smaller to match height.
-                        final int width = (int) (h * intrinsicAspect);
-                        left = (w - width) / 2;
-                        right = left + width;
-                    } else {
-                        // New height is larger. Make it smaller to match width.
-                        final int height = (int) (w * (1 / intrinsicAspect));
-                        top = (h - height) / 2;
-                        bottom = top + height;
-                    }
+            // Maintain aspect ratio. Certain kinds of animated drawables
+            // get very confused otherwise.
+            final int intrinsicWidth = mIndeterminateDrawable.getIntrinsicWidth();
+            final int intrinsicHeight = mIndeterminateDrawable.getIntrinsicHeight();
+            final float intrinsicAspect = (float)intrinsicWidth / intrinsicHeight;
+            final float boundAspect = (float)w / h;
+            if (intrinsicAspect != boundAspect) {
+                if (boundAspect > intrinsicAspect) {
+                    // New width is larger. Make it smaller to match height.
+                    final int width = (int)(h * intrinsicAspect);
+                    left = (w - width) / 2;
+                    right = left + width;
+                } else {
+                    // New height is larger. Make it smaller to match width.
+                    final int height = (int)(w * (1 / intrinsicAspect));
+                    top = (h - height) / 2;
+                    bottom = top + height;
                 }
+            }
             if (isLayoutRtl() && mMirrorForRtl) {
                 int tempLeft = left;
                 left = w - right;
@@ -588,7 +586,7 @@ public class UnifiedCircularProgressBar extends View {
             }
             mIndeterminateDrawable.setBounds(left, top, right, bottom);
         }
-	}
+    }
     @Override
     protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -603,12 +601,12 @@ public class UnifiedCircularProgressBar extends View {
             // Translate canvas so a indeterminate circular progress bar with padding
             // rotates properly in its animation
             final int saveCount = canvas.save();
-			if (isLayoutRtl() && mMirrorForRtl) {
+            if (isLayoutRtl() && mMirrorForRtl) {
                 canvas.translate(getWidth() - getPaddingRight(), getPaddingTop());
                 canvas.scale(-1.0f, 1.0f);
             } else {
-				canvas.translate(getPaddingLeft(), getPaddingTop());
-			}
+                canvas.translate(getPaddingLeft(), getPaddingTop());
+            }
             d.draw(canvas);
             canvas.restoreToCount(saveCount);
             if (mShouldStartAnimationDrawable) {
@@ -651,7 +649,7 @@ public class UnifiedCircularProgressBar extends View {
         }
     }
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-	@Override
+    @Override
     public void drawableHotspotChanged(float x, float y) {
         super.drawableHotspotChanged(x, y);
         if (mIndeterminateDrawable != null) {
@@ -678,8 +676,7 @@ public class UnifiedCircularProgressBar extends View {
             super.writeToParcel(out, flags);
             out.writeInt(progress);
         }
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }

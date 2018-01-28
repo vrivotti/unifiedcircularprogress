@@ -168,7 +168,7 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
      * @param indeterminate true to enable the indeterminate mode
      */
     public void setIndeterminate(boolean indeterminate) {
-        if(!indeterminate) setProgress(mProgress);
+        if (!indeterminate) setProgress(mProgress);
         else if (!mIndeterminate) {
             mIndeterminate = true;
 
@@ -313,7 +313,7 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
             float timeToReset = next - ringStart;
             float timeFraction = timeToReset / (timeToReset + mProgress);
 
-            if(timeFraction > 0.99f) timeFraction = 0.99f;
+            if (timeFraction > 0.99f) timeFraction = 0.99f;
 
             setupAnimators(
                 PropertyValuesHolder.ofKeyframe("",
@@ -345,7 +345,7 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
                                                 Keyframe.ofFloat(0.2f, base + 0.65f),
                                                 Keyframe.ofFloat(0.5f, base + 1.05f),
                                                 Keyframe.ofFloat(1.0f, base + 1.25f)),
-                    mDuration);
+                mDuration);
         } else {
             float next = (float)Math.ceil(ringEnd);
             float timeToReset = next - ringStart;
