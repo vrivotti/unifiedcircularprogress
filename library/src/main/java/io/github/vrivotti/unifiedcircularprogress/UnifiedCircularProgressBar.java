@@ -14,12 +14,10 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.v4.util.Pools;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewDebug;
-import android.widget.RemoteViews.RemoteView;
 
 import java.util.ArrayList;
 
@@ -41,6 +39,7 @@ import java.util.ArrayList;
  * Use determinate mode for the progress bar when you want to show that a specific quantity of
  * progress has occurred.
  * Determinate mode shows an animation to specific amount of progress.
+ * </p>
  * <p>
  * You can update the percentage of progress displayed by using the
  * {@link #setProgress(int)} method, or by calling
@@ -54,13 +53,11 @@ import java.util.ArrayList;
  * See {@link R.styleable#UnifiedCircularProgressBar Attributes}
  * </p>
  */
-@RemoteView
-public class UnifiedCircularProgressBar extends View {
-
-    int mMinWidth;
-    int mMaxWidth;
-    int mMinHeight;
-    int mMaxHeight;
+public final class UnifiedCircularProgressBar extends View {
+    private int mMinWidth;
+    private int mMaxWidth;
+    private int mMinHeight;
+    private int mMaxHeight;
     private int mProgress;
     private int mMin;
     private boolean mMinInitialized;
@@ -77,10 +74,10 @@ public class UnifiedCircularProgressBar extends View {
     private boolean mAttached;
     private boolean mRefreshIsPosted;
 
-    boolean mMirrorForRtl = false;
+    private boolean mMirrorForRtl = false;
     private boolean mAggregatedIsVisible;
 
-    private final ArrayList<RefreshData> mRefreshData = new ArrayList<RefreshData>();
+    private final ArrayList<Integer> mRefreshData = new ArrayList<>();
 
     /**
      * Create a new progress bar with range 0...100, initial progress of 0 and in indeterminate mode.
@@ -129,7 +126,7 @@ public class UnifiedCircularProgressBar extends View {
         setIndeterminateDrawable(new UnifiedCircularProgressDrawable());
         mNoInvalidate = false;
         setIndeterminate(a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_indeterminate, mIndeterminate));
-        mMirrorForRtl = a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_mirrorForRtl, mMirrorForRtl);
+        mMirrorForRtl = a.getBoolean(R.styleable.UnifiedCircularProgressBar_mirrorForRtl, mMirrorForRtl);
 
         TypedValue typedValue = new TypedValue();
         Resources.Theme theme = context.getTheme();
@@ -139,21 +136,21 @@ public class UnifiedCircularProgressBar extends View {
         mProgressTintInfo = new ProgressTintInfo();
         mProgressTintInfo.mHasIndeterminateTint = true;
         mProgressTintInfo.mIndeterminateTintList = defaultTint;
-        mProgressTintInfo.mHasIndeterminateTint = true;
 
-        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_android_indeterminateTintMode)) {
+        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_indeterminateTintMode)) {
             mProgressTintInfo.mIndeterminateTintMode = parseTintMode(a.getInt(
-                    R.styleable.UnifiedCircularProgressBar_android_indeterminateTintMode, -1), null);
+                    R.styleable.UnifiedCircularProgressBar_indeterminateTintMode, -1), null);
             mProgressTintInfo.mHasIndeterminateTintMode = true;
         }
-        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_android_indeterminateTint)) {
+        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_indeterminateTint)) {
             mProgressTintInfo.mIndeterminateTintList = a.getColorStateList(
-                    R.styleable.UnifiedCircularProgressBar_android_indeterminateTint);
+                    R.styleable.UnifiedCircularProgressBar_indeterminateTint);
             mProgressTintInfo.mHasIndeterminateTint = true;
         }
         a.recycle();
         applyIndeterminateTint();
     }
+
     /**
      * <p>
      * Initialize the progress bar's default values:
@@ -175,6 +172,7 @@ public class UnifiedCircularProgressBar extends View {
         mMinHeight = 24;
         mMaxHeight = 48;
     }
+
     /**
      * <p>Indicate whether this progress bar is in indeterminate mode.</p>
      *
@@ -198,14 +196,12 @@ public class UnifiedCircularProgressBar extends View {
 
         startAnimation();
     }
+
     private void setIndeterminateDrawable(UnifiedCircularProgressDrawable d) {
         if (mIndeterminateDrawable != d) {
             mIndeterminateDrawable = d;
             if (d != null) {
                 d.setCallback(this);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                    d.setAutoMirrored(true);
-                }
                 if (d.isStateful()) {
                     d.setState(getDrawableState());
                 }
@@ -214,6 +210,7 @@ public class UnifiedCircularProgressBar extends View {
             postInvalidate();
         }
     }
+
     /**
      * Applies a tint to the drawable. Does not modify the
      * current tint mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
@@ -232,6 +229,7 @@ public class UnifiedCircularProgressBar extends View {
         mProgressTintInfo.mHasIndeterminateTint = true;
         applyIndeterminateTint();
     }
+
     /**
      * @return the tint applied to the indeterminate drawable
      * @see #setIndeterminateTintList(ColorStateList)
@@ -240,6 +238,7 @@ public class UnifiedCircularProgressBar extends View {
     public ColorStateList getIndeterminateTintList() {
         return mProgressTintInfo != null ? mProgressTintInfo.mIndeterminateTintList : null;
     }
+
     /**
      * Specifies the blending mode used to apply the tint specified by
      * {@link #setIndeterminateTintList(ColorStateList)} to the indeterminate
@@ -258,6 +257,7 @@ public class UnifiedCircularProgressBar extends View {
         mProgressTintInfo.mHasIndeterminateTintMode = true;
         applyIndeterminateTint();
     }
+
     /**
      * Returns the blending mode used to apply the tint to the indeterminate
      * drawable, if specified.
@@ -270,6 +270,7 @@ public class UnifiedCircularProgressBar extends View {
     public PorterDuff.Mode getIndeterminateTintMode() {
         return mProgressTintInfo != null ? mProgressTintInfo.mIndeterminateTintMode : null;
     }
+
     private void applyIndeterminateTint() {
         if (mIndeterminateDrawable != null && mProgressTintInfo != null) {
             final ProgressTintInfo tintInfo = mProgressTintInfo;
@@ -289,30 +290,32 @@ public class UnifiedCircularProgressBar extends View {
             }
         }
     }
+
     @Override
     protected boolean verifyDrawable(@NonNull Drawable who) {
         return who == mIndeterminateDrawable
                 || super.verifyDrawable(who);
     }
+
     @Override
     public void jumpDrawablesToCurrentState() {
         super.jumpDrawablesToCurrentState();
         if (mIndeterminateDrawable != null) mIndeterminateDrawable.jumpToCurrentState();
     }
+
     @Override
     public void postInvalidate() {
         if (!mNoInvalidate) {
             super.postInvalidate();
         }
     }
+
     private class RefreshProgressRunnable implements Runnable {
         public void run() {
             synchronized (UnifiedCircularProgressBar.this) {
                 final int count = mRefreshData.size();
                 for (int i = 0; i < count; i++) {
-                    final RefreshData rd = mRefreshData.get(i);
-                    doRefreshProgress(rd.progress);
-                    rd.recycle();
+                    doRefreshProgress(mRefreshData.get(i));
                 }
                 mRefreshData.clear();
                 mRefreshIsPosted = false;
@@ -320,30 +323,12 @@ public class UnifiedCircularProgressBar extends View {
         }
     }
 
-    private static class RefreshData {
-        private static final int POOL_MAX = 24;
-        private static final Pools.SynchronizedPool<RefreshData> sPool =
-                new Pools.SynchronizedPool<RefreshData>(POOL_MAX);
-
-        public int progress;
-        public static RefreshData obtain(int progress) {
-            RefreshData rd = sPool.acquire();
-            if (rd == null) {
-                rd = new RefreshData();
-            }
-            rd.progress = progress;
-            return rd;
-        }
-
-        public void recycle() {
-            sPool.release(this);
-        }
-    }
-
     private synchronized void doRefreshProgress(int progress) {
         int range = mMax - mMin;
         final float scale = range > 0 ? (progress - mMin) / (float)range : 0;
         mIndeterminateDrawable.setProgress(scale);
+
+        startAnimation();
     }
 
     private synchronized void refreshProgress(int progress) {
@@ -354,14 +339,14 @@ public class UnifiedCircularProgressBar extends View {
                 mRefreshProgressRunnable = new RefreshProgressRunnable();
             }
 
-            final RefreshData rd = RefreshData.obtain(progress);
-            mRefreshData.add(rd);
+            mRefreshData.add(progress);
             if (mAttached && !mRefreshIsPosted) {
                 post(mRefreshProgressRunnable);
                 mRefreshIsPosted = true;
             }
         }
     }
+
     /**
      * Sets the current progress to the specified value.
      * <p>
@@ -382,6 +367,7 @@ public class UnifiedCircularProgressBar extends View {
             return;
         }
         mProgress = progress;
+        mIndeterminate = false;
         refreshProgress(mProgress);
     }
 
@@ -487,6 +473,7 @@ public class UnifiedCircularProgressBar extends View {
             mMax = max;
         }
     }
+
     /**
      * <p>Increase the progress bar's progress by the specified amount.</p>
      *
@@ -497,10 +484,11 @@ public class UnifiedCircularProgressBar extends View {
     public synchronized final void incrementProgressBy(int diff) {
         setProgress(mProgress + diff);
     }
+
     /**
      * <p>Start the indeterminate progress animation.</p>
      */
-    void startAnimation() {
+    private void startAnimation() {
         if (getVisibility() != VISIBLE || getWindowVisibility() != VISIBLE) {
             return;
         }
@@ -508,14 +496,16 @@ public class UnifiedCircularProgressBar extends View {
         mShouldStartAnimationDrawable = true;
         postInvalidate();
     }
+
     /**
      * <p>Stop the indeterminate progress animation.</p>
      */
-    void stopAnimation() {
+    private void stopAnimation() {
         mIndeterminateDrawable.stop();
         mShouldStartAnimationDrawable = false;
         postInvalidate();
     }
+
     @Override
     public void onVisibilityAggregated(boolean isVisible) {
         super.onVisibilityAggregated(isVisible);
@@ -531,6 +521,7 @@ public class UnifiedCircularProgressBar extends View {
             mIndeterminateDrawable.setVisible(isVisible, false);
         }
     }
+
     @Override
     public void invalidateDrawable(@NonNull Drawable dr) {
         if (verifyDrawable(dr)) {
@@ -539,16 +530,14 @@ public class UnifiedCircularProgressBar extends View {
             final int scrollY = getScrollY() + getPaddingTop();
 
             invalidate(dirty.left + scrollX, dirty.top + scrollY,
-                    dirty.right + scrollX, dirty.bottom + scrollY);
+                       dirty.right + scrollX, dirty.bottom + scrollY);
         } else {
             super.invalidateDrawable(dr);
         }
     }
+
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        updateDrawableBounds(w, h);
-    }
-    private void updateDrawableBounds(int w, int h) {
         // onDraw will translate the canvas so we draw starting at 0,0.
         // Subtract out padding for the purposes of the calculations below.
         w -= getPaddingRight() + getPaddingLeft();
@@ -579,7 +568,7 @@ public class UnifiedCircularProgressBar extends View {
                     bottom = top + height;
                 }
             }
-            if (isLayoutRtl() && mMirrorForRtl) {
+            if (mMirrorForRtl && isLayoutRtl()) {
                 int tempLeft = left;
                 left = w - right;
                 right = w - tempLeft;
@@ -587,15 +576,11 @@ public class UnifiedCircularProgressBar extends View {
             mIndeterminateDrawable.setBounds(left, top, right, bottom);
         }
     }
+
     @Override
     protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawTrack(canvas);
-    }
-    /**
-     * Draws the progress bar track.
-     */
-    void drawTrack(Canvas canvas) {
+
         final UnifiedCircularProgressDrawable d = mIndeterminateDrawable;
         if (d != null) {
             // Translate canvas so a indeterminate circular progress bar with padding
@@ -610,11 +595,12 @@ public class UnifiedCircularProgressBar extends View {
             d.draw(canvas);
             canvas.restoreToCount(saveCount);
             if (mShouldStartAnimationDrawable) {
-                d.start();
                 mShouldStartAnimationDrawable = false;
+                d.start();
             }
         }
     }
+
     @Override
     protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int dw = 0;
@@ -632,22 +618,25 @@ public class UnifiedCircularProgressBar extends View {
         final int measuredHeight = resolveSizeAndState(dh, heightMeasureSpec, 0);
         setMeasuredDimension(measuredWidth, measuredHeight);
     }
+
     @Override
     protected void drawableStateChanged() {
         super.drawableStateChanged();
         updateDrawableState();
     }
+
     private void updateDrawableState() {
         final int[] state = getDrawableState();
         boolean changed = false;
         final Drawable indeterminateDrawable = mIndeterminateDrawable;
         if (indeterminateDrawable != null && indeterminateDrawable.isStateful()) {
-            changed |= indeterminateDrawable.setState(state);
+            changed = indeterminateDrawable.setState(state);
         }
         if (changed) {
             invalidate();
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void drawableHotspotChanged(float x, float y) {
@@ -656,8 +645,10 @@ public class UnifiedCircularProgressBar extends View {
             mIndeterminateDrawable.setHotspot(x, y);
         }
     }
-    static class SavedState extends BaseSavedState {
+
+    private static class SavedState extends BaseSavedState {
         int progress;
+        boolean indeterminate;
         /**
          * Constructor called from {@link UnifiedCircularProgressBar#onSaveInstanceState()}
          */
@@ -670,12 +661,16 @@ public class UnifiedCircularProgressBar extends View {
         private SavedState(Parcel in) {
             super(in);
             progress = in.readInt();
+            indeterminate = in.readInt() != 0;
         }
+
         @Override
         public void writeToParcel(Parcel out, int flags) {
             super.writeToParcel(out, flags);
             out.writeInt(progress);
+            out.writeInt(indeterminate ? 1 : 0);
         }
+
         public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
@@ -685,20 +680,25 @@ public class UnifiedCircularProgressBar extends View {
             }
         };
     }
+
     @Override
     public Parcelable onSaveInstanceState() {
         // Force our ancestor class to save its state
         Parcelable superState = super.onSaveInstanceState();
         SavedState ss = new SavedState(superState);
         ss.progress = mProgress;
+        ss.indeterminate = mIndeterminate;
         return ss;
     }
+
     @Override
     public void onRestoreInstanceState(Parcelable state) {
-        SavedState ss = (SavedState) state;
+        SavedState ss = (SavedState)state;
         super.onRestoreInstanceState(ss.getSuperState());
         setProgress(ss.progress);
+        setIndeterminate(ss.indeterminate);
     }
+
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -707,15 +707,14 @@ public class UnifiedCircularProgressBar extends View {
             synchronized (this) {
                 final int count = mRefreshData.size();
                 for (int i = 0; i < count; i++) {
-                    final RefreshData rd = mRefreshData.get(i);
-                    doRefreshProgress(rd.progress);
-                    rd.recycle();
+                    doRefreshProgress(mRefreshData.get(i));
                 }
                 mRefreshData.clear();
             }
         }
         mAttached = true;
     }
+
     @Override
     protected void onDetachedFromWindow() {
         stopAnimation();
@@ -730,13 +729,12 @@ public class UnifiedCircularProgressBar extends View {
     }
 
     /**
-     * Returns whether the progress bar is animating or not. This is essentially the same
-     * as whether the progress bar is visible.
+     * Returns whether the progress bar is animating or not.
      *
      * @return true if the progress bar is animating, false otherwise.
      */
     public boolean isAnimating() {
-        return getWindowVisibility() == VISIBLE && isShown();
+        return mIndeterminateDrawable.isRunning() && getWindowVisibility() == VISIBLE && isShown();
     }
 
     private static class ProgressTintInfo {

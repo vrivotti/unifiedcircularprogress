@@ -51,10 +51,10 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
     private boolean mIndeterminate = true;
     private float mProgress = 0;
     private int mDuration = 1333;
+    private boolean mStarted;
 
     public UnifiedCircularProgressDrawable() {
         setupIndeterminateAnimators();
-        start();
     }
 
     @Override
@@ -168,14 +168,16 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
      * @param indeterminate true to enable the indeterminate mode
      */
     public void setIndeterminate(boolean indeterminate) {
-        if (!indeterminate) setProgress(mProgress);
-        else if (!mIndeterminate) {
+        if (!indeterminate) {
+            setProgress(mProgress);
+            return;
+        }
+        if (!mIndeterminate) {
             mIndeterminate = true;
 
             reduceAngles();
             if (ringStart < ANGULAR_EPSILON) {
                 setupIndeterminateAnimators();
-                start();
             }
         }
     }
@@ -207,7 +209,6 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
         mIndeterminate = false;
 
         setupDeterminateAnimators();
-        start();
     }
 
     @Override
@@ -240,7 +241,7 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
         canvas.drawArc(RECT_PROGRESS, startAngle, sweepAngle, false, mPaint);
         canvas.restoreToCount(saveCount);
 
-        if (isStarted()) {
+        if (mRingPathStart.isStarted()) {
             invalidateSelf();
         }
     }
@@ -252,12 +253,11 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
      * @see #isRunning()
      */
     public void start() {
-        if (isStarted()) {
-            return;
-        }
+        if (mRingPathStart.isStarted()) return;
 
         mRingPathStart.start();
         mRingPathEnd.start();
+        mStarted = true;
 
         invalidateSelf();
     }
@@ -265,12 +265,13 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
     /**
      * Stops the drawable's animation.
      *
-     * @see #stop()
+     * @see #start()
      * @see #isRunning()
      */
     public void stop() {
         mRingPathStart.end();
         mRingPathEnd.end();
+        mStarted = false;
     }
 
     /**
@@ -278,8 +279,8 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
      *
      * @return true if the animation is running, false otherwise.
      *
+     * @see #start()
      * @see #stop()
-     * @see #isRunning()
      */
     public boolean isRunning() {
         return mRingPathStart.isRunning();
@@ -290,10 +291,6 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
         super.onBoundsChange(bounds);
 
         fBounds.set(bounds);
-    }
-
-    private boolean isStarted() {
-        return mRingPathStart.isStarted();
     }
 
     private void setupDeterminateAnimators() {
@@ -331,7 +328,7 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
     private void setupIndeterminateAnimators() {
         reduceAngles();
 
-        if (ringEnd - ringStart < 0.8f) {
+        if (ringEnd - ringStart <= 0.5f) {
             float base = ringStart < ANGULAR_EPSILON ? 0 : ringStart;
 
             setupAnimators(
@@ -380,7 +377,7 @@ public final class UnifiedCircularProgressDrawable extends Drawable implements A
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
 
-                if (mIndeterminate) {
+                if (mIndeterminate && mStarted) {
                     setupIndeterminateAnimators();
                     mRingPathStart.start();
                     mRingPathEnd.start();

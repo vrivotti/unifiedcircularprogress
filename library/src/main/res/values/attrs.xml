@@ -16,11 +16,11 @@
         <attr name="android:maxHeight" />
         <!-- Defines if the associated drawables need to be mirrored when in RTL mode.
              Default is false. -->
-        <attr name="android:mirrorForRtl" format="boolean" />
+        <attr name="mirrorForRtl" format="boolean" />
         <!-- Tint to apply to the indeterminate progress indicator. -->
-        <attr name="android:indeterminateTint" format="color" />
+        <attr name="indeterminateTint" format="color" />
         <!-- Blending mode used to apply the indeterminate progress indicator tint. -->
-        <attr name="android:indeterminateTintMode">
+        <attr name="indeterminateTintMode">
             <!-- The tint is drawn on top of the drawable.
                  [Sa + (1 - Sa)*Da, Rc = Sc + (1 - Sa)*Dc] -->
             <enum name="src_over" value="3" />
