@@ -47,7 +47,7 @@ import java.util.ArrayList;
  * by a specified amount.
  * By default, the progress bar is full when the progress value reaches 100.
  * You can adjust this default by setting the
- * {@link R.styleable#UnifiedCircularProgressBar_android_max android:max} attribute.
+ * {@link R.styleable#UnifiedCircularProgressBar_max android:max} attribute.
  * </p>
  * <p>
  * See {@link R.styleable#UnifiedCircularProgressBar Attributes}
@@ -64,11 +64,11 @@ public final class UnifiedCircularProgressBar extends View {
     private int mMax;
     private boolean mMaxInitialized;
     private boolean mIndeterminate;
-    private UnifiedCircularProgressDrawable mIndeterminateDrawable;
     private ProgressTintInfo mProgressTintInfo;
+    private UnifiedCircularProgressDrawable mDrawable;
 
-    private boolean mNoInvalidate;
     private RefreshProgressRunnable mRefreshProgressRunnable;
+    private boolean mNoInvalidate;
     private long mUiThreadId;
     private boolean mShouldStartAnimationDrawable;
     private boolean mAttached;
@@ -120,12 +120,12 @@ public final class UnifiedCircularProgressBar extends View {
         mMaxWidth = a.getDimensionPixelSize(R.styleable.UnifiedCircularProgressBar_android_maxWidth, mMaxWidth);
         mMinHeight = a.getDimensionPixelSize(R.styleable.UnifiedCircularProgressBar_android_minHeight, mMinHeight);
         mMaxHeight = a.getDimensionPixelSize(R.styleable.UnifiedCircularProgressBar_android_maxHeight, mMaxHeight);
-        setMin(a.getInt(R.styleable.UnifiedCircularProgressBar_android_min, mMin));
-        setMax(a.getInt(R.styleable.UnifiedCircularProgressBar_android_max, mMax));
-        setProgress(a.getInt(R.styleable.UnifiedCircularProgressBar_android_progress, mProgress));
-        setIndeterminateDrawable(new UnifiedCircularProgressDrawable());
+        setMin(a.getInt(R.styleable.UnifiedCircularProgressBar_min, mMin));
+        setMax(a.getInt(R.styleable.UnifiedCircularProgressBar_max, mMax));
+        setProgress(a.getInt(R.styleable.UnifiedCircularProgressBar_progress, mProgress));
+        setDrawable(new UnifiedCircularProgressDrawable());
         mNoInvalidate = false;
-        setIndeterminate(a.getBoolean(R.styleable.UnifiedCircularProgressBar_android_indeterminate, mIndeterminate));
+        setIndeterminate(a.getBoolean(R.styleable.UnifiedCircularProgressBar_indeterminate, mIndeterminate));
         mMirrorForRtl = a.getBoolean(R.styleable.UnifiedCircularProgressBar_mirrorForRtl, mMirrorForRtl);
 
         TypedValue typedValue = new TypedValue();
@@ -134,21 +134,21 @@ public final class UnifiedCircularProgressBar extends View {
         ColorStateList defaultTint = ColorStateList.valueOf(typedValue.data);
 
         mProgressTintInfo = new ProgressTintInfo();
-        mProgressTintInfo.mHasIndeterminateTint = true;
-        mProgressTintInfo.mIndeterminateTintList = defaultTint;
+        mProgressTintInfo.mHasTint = true;
+        mProgressTintInfo.mTintList = defaultTint;
 
-        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_indeterminateTintMode)) {
-            mProgressTintInfo.mIndeterminateTintMode = parseTintMode(a.getInt(
-                    R.styleable.UnifiedCircularProgressBar_indeterminateTintMode, -1), null);
-            mProgressTintInfo.mHasIndeterminateTintMode = true;
+        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_tintMode)) {
+            mProgressTintInfo.mTintMode = parseTintMode(a.getInt(
+                    R.styleable.UnifiedCircularProgressBar_tintMode, -1), null);
+            mProgressTintInfo.mHasTintMode = true;
         }
-        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_indeterminateTint)) {
-            mProgressTintInfo.mIndeterminateTintList = a.getColorStateList(
-                    R.styleable.UnifiedCircularProgressBar_indeterminateTint);
-            mProgressTintInfo.mHasIndeterminateTint = true;
+        if (a.hasValue(R.styleable.UnifiedCircularProgressBar_tint)) {
+            mProgressTintInfo.mTintList = a.getColorStateList(
+                    R.styleable.UnifiedCircularProgressBar_tint);
+            mProgressTintInfo.mHasTint = true;
         }
         a.recycle();
-        applyIndeterminateTint();
+        applyTint();
     }
 
     /**
@@ -192,20 +192,20 @@ public final class UnifiedCircularProgressBar extends View {
      */
     public synchronized void setIndeterminate(boolean indeterminate) {
         mIndeterminate = indeterminate;
-        mIndeterminateDrawable.setIndeterminate(indeterminate);
+        mDrawable.setIndeterminate(indeterminate);
 
         startAnimation();
     }
 
-    private void setIndeterminateDrawable(UnifiedCircularProgressDrawable d) {
-        if (mIndeterminateDrawable != d) {
-            mIndeterminateDrawable = d;
+    private void setDrawable(UnifiedCircularProgressDrawable d) {
+        if (mDrawable != d) {
+            mDrawable = d;
             if (d != null) {
                 d.setCallback(this);
                 if (d.isStateful()) {
                     d.setState(getDrawableState());
                 }
-                applyIndeterminateTint();
+                applyTint();
             }
             postInvalidate();
         }
@@ -214,78 +214,76 @@ public final class UnifiedCircularProgressBar extends View {
     /**
      * Applies a tint to the drawable. Does not modify the
      * current tint mode, which is {@link PorterDuff.Mode#SRC_IN} by default.
-     * <p>
      *
      * @param tint the tint to apply, may be {@code null} to clear tint
      *
-     * @see #getIndeterminateTintList()
+     * @see #getTintList()
      * @see Drawable#setTintList(ColorStateList)
      */
-    public void setIndeterminateTintList(@Nullable ColorStateList tint) {
+    public void setTintList(@Nullable ColorStateList tint) {
         if (mProgressTintInfo == null) {
             mProgressTintInfo = new ProgressTintInfo();
         }
-        mProgressTintInfo.mIndeterminateTintList = tint;
-        mProgressTintInfo.mHasIndeterminateTint = true;
-        applyIndeterminateTint();
+        mProgressTintInfo.mTintList = tint;
+        mProgressTintInfo.mHasTint = true;
+        applyTint();
     }
 
     /**
-     * @return the tint applied to the indeterminate drawable
-     * @see #setIndeterminateTintList(ColorStateList)
+     * @return the tint applied to the drawable
+     * @see #setTintList(ColorStateList)
      */
     @Nullable
-    public ColorStateList getIndeterminateTintList() {
-        return mProgressTintInfo != null ? mProgressTintInfo.mIndeterminateTintList : null;
+    public ColorStateList getTintList() {
+        return mProgressTintInfo != null ? mProgressTintInfo.mTintList : null;
     }
 
     /**
      * Specifies the blending mode used to apply the tint specified by
-     * {@link #setIndeterminateTintList(ColorStateList)} to the indeterminate
-     * drawable. The default mode is {@link PorterDuff.Mode#SRC_IN}.
+     * {@link #setTintList(ColorStateList)} to the drawable.
+     * The default mode is {@link PorterDuff.Mode#SRC_IN}.
      *
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
-     * @see #setIndeterminateTintList(ColorStateList)
+     * @see #setTintList(ColorStateList)
      * @see Drawable#setTintMode(PorterDuff.Mode)
      */
-    public void setIndeterminateTintMode(@Nullable PorterDuff.Mode tintMode) {
+    public void setTintMode(@Nullable PorterDuff.Mode tintMode) {
         if (mProgressTintInfo == null) {
             mProgressTintInfo = new ProgressTintInfo();
         }
-        mProgressTintInfo.mIndeterminateTintMode = tintMode;
-        mProgressTintInfo.mHasIndeterminateTintMode = true;
-        applyIndeterminateTint();
+        mProgressTintInfo.mTintMode = tintMode;
+        mProgressTintInfo.mHasTintMode = true;
+        applyTint();
     }
 
     /**
-     * Returns the blending mode used to apply the tint to the indeterminate
-     * drawable, if specified.
+     * Returns the blending mode used to apply the tint to the drawable,
+     * if specified.
      *
-     * @return the blending mode used to apply the tint to the indeterminate
-     *         drawable
-     * @see #setIndeterminateTintMode(PorterDuff.Mode)
+     * @return the blending mode used to apply the tint to the drawable
+     * @see #setTintMode(PorterDuff.Mode)
      */
     @Nullable
-    public PorterDuff.Mode getIndeterminateTintMode() {
-        return mProgressTintInfo != null ? mProgressTintInfo.mIndeterminateTintMode : null;
+    public PorterDuff.Mode getTintMode() {
+        return mProgressTintInfo != null ? mProgressTintInfo.mTintMode : null;
     }
 
-    private void applyIndeterminateTint() {
-        if (mIndeterminateDrawable != null && mProgressTintInfo != null) {
+    private void applyTint() {
+        if (mDrawable != null && mProgressTintInfo != null) {
             final ProgressTintInfo tintInfo = mProgressTintInfo;
-            if (tintInfo.mHasIndeterminateTint || tintInfo.mHasIndeterminateTintMode) {
-                mIndeterminateDrawable = (UnifiedCircularProgressDrawable)mIndeterminateDrawable.mutate();
-                if (tintInfo.mHasIndeterminateTint) {
-                    mIndeterminateDrawable.setTintList(tintInfo.mIndeterminateTintList);
+            if (tintInfo.mHasTint || tintInfo.mHasTintMode) {
+                mDrawable = (UnifiedCircularProgressDrawable)mDrawable.mutate();
+                if (tintInfo.mHasTint) {
+                    mDrawable.setTintList(tintInfo.mTintList);
                 }
-                if (tintInfo.mHasIndeterminateTintMode) {
-                    mIndeterminateDrawable.setTintMode(tintInfo.mIndeterminateTintMode);
+                if (tintInfo.mHasTintMode) {
+                    mDrawable.setTintMode(tintInfo.mTintMode);
                 }
                 // The drawable (or one of its children) may not have been
                 // stateful before applying the tint, so let's try again.
-                if (mIndeterminateDrawable.isStateful()) {
-                    mIndeterminateDrawable.setState(getDrawableState());
+                if (mDrawable.isStateful()) {
+                    mDrawable.setState(getDrawableState());
                 }
             }
         }
@@ -293,14 +291,14 @@ public final class UnifiedCircularProgressBar extends View {
 
     @Override
     protected boolean verifyDrawable(@NonNull Drawable who) {
-        return who == mIndeterminateDrawable
+        return who == mDrawable
                 || super.verifyDrawable(who);
     }
 
     @Override
     public void jumpDrawablesToCurrentState() {
         super.jumpDrawablesToCurrentState();
-        if (mIndeterminateDrawable != null) mIndeterminateDrawable.jumpToCurrentState();
+        if (mDrawable != null) mDrawable.jumpToCurrentState();
     }
 
     @Override
@@ -326,7 +324,7 @@ public final class UnifiedCircularProgressBar extends View {
     private synchronized void doRefreshProgress(int progress) {
         int range = mMax - mMin;
         final float scale = range > 0 ? (progress - mMin) / (float)range : 0;
-        mIndeterminateDrawable.setProgress(scale);
+        mDrawable.setProgress(scale);
 
         startAnimation();
     }
@@ -349,7 +347,6 @@ public final class UnifiedCircularProgressBar extends View {
 
     /**
      * Sets the current progress to the specified value.
-     * <p>
      * This method will animate the visual position to the target value.
      *
      * @param progress the new progress, between {@link #getMin()} and {@link #getMax()}
@@ -376,8 +373,8 @@ public final class UnifiedCircularProgressBar extends View {
     }
 
     /**
-     * <p>Get the progress bar's current level of progress. Return 0 when the
-     * progress bar is in indeterminate mode.</p>
+     * <p>Get the progress bar's current level of progress.
+     * Returns 0 when the progress bar is in indeterminate mode.</p>
      *
      * @return the current progress, between {@link #getMin()} and {@link #getMax()}
      *
@@ -486,7 +483,7 @@ public final class UnifiedCircularProgressBar extends View {
     }
 
     /**
-     * <p>Start the indeterminate progress animation.</p>
+     * <p>Start the progress animation.</p>
      */
     private void startAnimation() {
         if (getVisibility() != VISIBLE || getWindowVisibility() != VISIBLE) {
@@ -498,10 +495,10 @@ public final class UnifiedCircularProgressBar extends View {
     }
 
     /**
-     * <p>Stop the indeterminate progress animation.</p>
+     * <p>Stop the progress animation.</p>
      */
     private void stopAnimation() {
-        mIndeterminateDrawable.stop();
+        mDrawable.stop();
         mShouldStartAnimationDrawable = false;
         postInvalidate();
     }
@@ -518,7 +515,7 @@ public final class UnifiedCircularProgressBar extends View {
             } else {
                 stopAnimation();
             }
-            mIndeterminateDrawable.setVisible(isVisible, false);
+            mDrawable.setVisible(isVisible, false);
         }
     }
 
@@ -547,12 +544,12 @@ public final class UnifiedCircularProgressBar extends View {
         int bottom = h;
         int top = 0;
         int left = 0;
-        if (mIndeterminateDrawable != null) {
+        if (mDrawable != null) {
             // Aspect ratio logic does not apply to AnimationDrawables
             // Maintain aspect ratio. Certain kinds of animated drawables
             // get very confused otherwise.
-            final int intrinsicWidth = mIndeterminateDrawable.getIntrinsicWidth();
-            final int intrinsicHeight = mIndeterminateDrawable.getIntrinsicHeight();
+            final int intrinsicWidth = mDrawable.getIntrinsicWidth();
+            final int intrinsicHeight = mDrawable.getIntrinsicHeight();
             final float intrinsicAspect = (float)intrinsicWidth / intrinsicHeight;
             final float boundAspect = (float)w / h;
             if (intrinsicAspect != boundAspect) {
@@ -573,7 +570,7 @@ public final class UnifiedCircularProgressBar extends View {
                 left = w - right;
                 right = w - tempLeft;
             }
-            mIndeterminateDrawable.setBounds(left, top, right, bottom);
+            mDrawable.setBounds(left, top, right, bottom);
         }
     }
 
@@ -581,9 +578,9 @@ public final class UnifiedCircularProgressBar extends View {
     protected synchronized void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        final UnifiedCircularProgressDrawable d = mIndeterminateDrawable;
+        final UnifiedCircularProgressDrawable d = mDrawable;
         if (d != null) {
-            // Translate canvas so a indeterminate circular progress bar with padding
+            // Translate canvas so a circular progress bar with padding
             // rotates properly in its animation
             final int saveCount = canvas.save();
             if (isLayoutRtl() && mMirrorForRtl) {
@@ -606,7 +603,7 @@ public final class UnifiedCircularProgressBar extends View {
         int dw = 0;
         int dh = 0;
 
-        final Drawable d = mIndeterminateDrawable;
+        final Drawable d = mDrawable;
         if (d != null) {
             dw = Math.max(mMinWidth, Math.min(mMaxWidth, d.getIntrinsicWidth()));
             dh = Math.max(mMinHeight, Math.min(mMaxHeight, d.getIntrinsicHeight()));
@@ -628,9 +625,9 @@ public final class UnifiedCircularProgressBar extends View {
     private void updateDrawableState() {
         final int[] state = getDrawableState();
         boolean changed = false;
-        final Drawable indeterminateDrawable = mIndeterminateDrawable;
-        if (indeterminateDrawable != null && indeterminateDrawable.isStateful()) {
-            changed = indeterminateDrawable.setState(state);
+        final Drawable drawable = mDrawable;
+        if (drawable != null && drawable.isStateful()) {
+            changed = drawable.setState(state);
         }
         if (changed) {
             invalidate();
@@ -641,8 +638,8 @@ public final class UnifiedCircularProgressBar extends View {
     @Override
     public void drawableHotspotChanged(float x, float y) {
         super.drawableHotspotChanged(x, y);
-        if (mIndeterminateDrawable != null) {
-            mIndeterminateDrawable.setHotspot(x, y);
+        if (mDrawable != null) {
+            mDrawable.setHotspot(x, y);
         }
     }
 
@@ -734,14 +731,14 @@ public final class UnifiedCircularProgressBar extends View {
      * @return true if the progress bar is animating, false otherwise.
      */
     public boolean isAnimating() {
-        return mIndeterminateDrawable.isRunning() && getWindowVisibility() == VISIBLE && isShown();
+        return mDrawable.isRunning() && getWindowVisibility() == VISIBLE && isShown();
     }
 
     private static class ProgressTintInfo {
-        ColorStateList mIndeterminateTintList;
-        PorterDuff.Mode mIndeterminateTintMode;
-        boolean mHasIndeterminateTint;
-        boolean mHasIndeterminateTintMode;
+        ColorStateList mTintList;
+        PorterDuff.Mode mTintMode;
+        boolean mHasTint;
+        boolean mHasTintMode;
     }
 
     /**
