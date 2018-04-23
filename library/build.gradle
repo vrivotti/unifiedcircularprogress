@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 26
-        versionCode 1
-        versionName "0.2.0"
+        versionCode 23
+        versionName "0.2.3"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -47,7 +47,7 @@ publish {
     groupId = 'io.github.vrivotti'
     artifactId = 'unifiedcircularprogress'
     desc = 'Circular progress bar with smooth transitions between determinate and indeterminate states.'
-    publishVersion = '0.2.0'
+    publishVersion = '0.2.3'
     licences = ['MIT']
     website = 'https://github.com/vrivotti/unifiedcircularprogress'
     dryRun = false
