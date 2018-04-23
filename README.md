@@ -1,4 +1,4 @@
-# Unified Circular Progress
+# Unified Circular Progress  [ ![Download](https://api.bintray.com/packages/vrivotti/maven/unifiedcircularprogress/images/download.svg) ](https://bintray.com/vrivotti/maven/unifiedcircularprogress/_latestVersion) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Circular progress bar with smooth transitions between determinate and indeterminate states. Looks like framework indeterminate circular `ProgressBar`, but with the ability to show determinate progress as well.
 
