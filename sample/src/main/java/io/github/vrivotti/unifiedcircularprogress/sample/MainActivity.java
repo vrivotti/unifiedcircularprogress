@@ -1,12 +1,12 @@
 package io.github.vrivotti.unifiedcircularprogress.sample;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.AppCompatSeekBar;
-import android.support.v7.widget.SwitchCompat;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatSeekBar;
+import androidx.appcompat.widget.SwitchCompat;
 import io.github.vrivotti.unifiedcircularprogress.UnifiedCircularProgressBar;
 
 public class MainActivity extends AppCompatActivity implements CompoundButton.OnCheckedChangeListener,
